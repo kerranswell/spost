@@ -1,0 +1,22 @@
+ErrorDocument 404 /rewrite.php?er=1
+
+	Options -MultiViews
+
+	RewriteEngine On
+
+    RewriteRule ^images/c/(.*)$ th.php?url=$1 [L,QSA]
+
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteRule ^(.*)$ rewrite.php?p_=$1 [L,QSA]
+
+AddDefaultCharset utf-8
+
+AddCharset utf-8 *
+
+<IfModule mod_charset.c>
+
+CharsetSourceEnc utf-8
+
+CharsetDefault utf-8
+
+</IfModule>
