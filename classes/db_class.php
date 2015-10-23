@@ -264,26 +264,26 @@
             $args = func_get_args();
             $tmp = $args[0];
             $tmp = str_replace(array("%", "?"), array("%%", "%s"), $tmp);
-            
+
             foreach ($args as $idx => $arg) {
                 // mysql_escape_string deprecated
                 // $args[$idx] = "'" . mysql_escape_string(str_replace('?', chr(7), $arg)) . "'";
                 $args[$idx] = "'" . mysql_real_escape_string(str_replace('?', chr(7), $arg), $this->dbh) . "'";
             }
-            
+
 //            print($tmp);
-            
+
 //            $args[0] = $tmp;
-            
+
             $query = call_user_func_array("sprintf", $args);
             $query = str_replace(chr(7), '?', $query);
-            
+
             $this->last_query = $query;
             if (DB_LOG == 2) { $this->LogIt($query); }
-            
+
             $result = mysql_query($query, $this->dbh);
             $this->affected_rows = mysql_affected_rows($this->dbh);
-            
+
             return $result;
         } // _exec()
         
@@ -293,7 +293,9 @@
             $tmp = $args[0];
 //            unset($args[0]);
             $tmp = str_replace(array("%", "?"), array("%%", "%s"), $tmp);
-            
+            global $tables;
+            $tmp = strtr($tmp, $tables);
+
             if (!empty($args)) {
                 foreach ($args as $idx => $arg) {
                     // mysql_escape_string deprecated
@@ -301,7 +303,7 @@
                     $args[$idx] = "'" . str_replace('?', chr(7), mysql_real_escape_string($arg.'', $this->dbh)) . "'";
                 }
             }
-            
+
   //          $marks = array_fill(1, sizeof($args), '?');
 //            LogIt(print_r($marks, true)); LogIt(print_r($args, true));
 //            $p = 0;

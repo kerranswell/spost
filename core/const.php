@@ -20,11 +20,12 @@ if (empty($_SERVER['DOCUMENT_ROOT'])) {
 define("SERVER_PROTOCOL", "http://");
 define("SERVER_REL_PATH", '');
 define("ROOT_DIR", $DOCUMENT_ROOT . SERVER_REL_PATH . "/");
-define("IMAGE_FOLDER", "/img/");
+define("IMAGE_FOLDER", "/images/");
 define("IMAGE_DIR", $DOCUMENT_ROOT . IMAGE_FOLDER);
 define("SHOWS_DIR", "shows/") ;
 define("TPL_DIR", ROOT_DIR . "templates/");
 define("CLASS_DIR", ROOT_DIR . "classes/");
+define("LIB_DIR", ROOT_DIR . "lib/");
 define("POST_DIR", ROOT_DIR . "_post/");
 define("TABLE_DIR", CLASS_DIR . "tables/");
 define("LOGS_DIR", ROOT_DIR . "logs/");
@@ -58,7 +59,28 @@ define('ARTICLE_TITLE_DELIMITER', "<br>"); // this value must be preg_match patt
 
 if (!defined('HOST')) define('HOST', 'tsi.elle.www.hsmdev.ru');
 
+/* SOCIAL CODES */
+define('VK_APP_ID', '5117128');
+define('VK_SECURE', 'UaZ0bqrz69ZlEyBPlt2A');
+define('VK_ACCESS_TOKEN', '6ee0efb85abbcd4975ea445a87b21f72483ed317ab054d54ac858ca08374386cb34fbc501296f0c294182');
+define('VK_ACCOUNT_ID', '105226635');
+
 /* THUMBNAILS CODES */
 define('TH_BG_IMAGE_ADMIN', 1);
+
+/* DB TABLES */
+define('TABLE_PREFIX', 'spost_');
+$tables = array();
+foreach (
+    array(
+             'blocks',
+             'images',
+             'pages',
+             'placement',
+             'services',
+             'usersadmin',
+         )
+    as $table => $t
+) $tables[$t] = TABLE_PREFIX.$t;
 
 ?>
