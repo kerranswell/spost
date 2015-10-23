@@ -22,6 +22,7 @@
 
 				<script src="/static/js/jquery.js"/>
 				<script src="/admin/static/js/jquery-ui.js"/>
+                <script type="text/javascript" src="/admin/static/jquery-ui/ui/jquery.ui.datepicker.js"></script>
 				<!--<script src="/admin/static/js/jquery.base64.js"/>-->
 				<!--<script src="/admin/static/js/bootstrap.js"/>-->
 				<!--<script src="/admin/static/js/jquery.toggle.buttons.js"/>-->

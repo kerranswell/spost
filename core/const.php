@@ -48,8 +48,6 @@ define('AUTHOR_TYPE_ARTICLES', 1);
 define('AUTHOR_TYPE_POSTS', 2);
 define('AUTHOR_TYPE_ALL', 3);
 
-define('STREETSTYLE_CAT_ID', 45);
-
 // diagnoses logics ids for tests service
 define('TESTS_LOGIC_SUMM_SCORES', 5);
 define('TESTS_LOGIC_GROUP_ANSWERS', 4);
@@ -67,9 +65,13 @@ define('VK_ACCOUNT_ID', '105226635');
 
 /* THUMBNAILS CODES */
 define('TH_BG_IMAGE_ADMIN', 1);
+define('TH_IMAGE_EDIT_ADMIN', 2);
 
 /* DB TABLES */
-define('TABLE_PREFIX', 'spost_');
+//define('TABLE_PREFIX', 'spost_');
+define('TABLE_PREFIX', '');
+define('DB_REPLACE_TABLES', 0);
+
 $tables = array();
 foreach (
     array(
@@ -82,5 +84,11 @@ foreach (
          )
     as $table => $t
 ) $tables[$t] = TABLE_PREFIX.$t;
+
+$soc_types = array('vk' => 'VK', 'fb' => 'Facebook', 'tw' => 'Twitter', 'ok' => 'Одноклассники');
+
+$post_times = array(
+    '10:00', '17:00', '21:00',
+);
 
 ?>

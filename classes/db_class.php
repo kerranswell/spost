@@ -293,8 +293,11 @@
             $tmp = $args[0];
 //            unset($args[0]);
             $tmp = str_replace(array("%", "?"), array("%%", "%s"), $tmp);
-            global $tables;
-            $tmp = strtr($tmp, $tables);
+            if (DB_REPLACE_TABLES)
+            {
+                global $tables;
+                $tmp = strtr($tmp, $tables);
+            }
 
             if (!empty($args)) {
                 foreach ($args as $idx => $arg) {

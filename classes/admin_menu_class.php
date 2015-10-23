@@ -6,7 +6,7 @@ class admin_menu extends Record {
     {
         $menu = array();
 
-        $menu[] = array('title' => 'Страницы', 'op' => 'pages', 'link' => '/admin/?op=pages&pid=0');
+        $menu[] = array('title' => 'Посты', 'op' => 'posts', 'link' => '/admin/?op=posts');
 
         return $menu;
     }

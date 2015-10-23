@@ -1,0 +1,79 @@
+<?php
+
+$date_format = "d.m.Y H:i";
+$date = $_REQUEST['date'];
+
+$posts = array();
+
+if ($date > 0)
+{
+    $sql = "select * from `posts` where `date` = ? group by `type`";
+    $rows = $dsp->db->Select($sql, $date);
+    $i = 0; $sort_types = array(); foreach ($soc_types as $st => $title) $sort_types[$st] = $i++;
+    foreach ($rows as $row) {
+        $row['soc_type_title'] = $soc_types[$row['type']];
+        if ($row['image'] > 0)
+        {
+            $row['image_th'] = $dsp->i->default_path.$dsp->i->resize($row['image'], TH_IMAGE_EDIT_ADMIN);
+            $row['image'] = SITE.IMAGE_FOLDER.$dsp->i->getOriginal($row['image'], 0);
+        }
+        $posts[$sort_types[$row['type']]] = $row;
+    }
+    ksort($posts);
+
+} else {
+
+    $sql = "Select max(`date`) from `posts`";
+    $max = $dsp->db->SelectValue($sql);
+    $date = 0;
+    if ($max > 0)
+    {
+        $max_date = date('d.m.Y', $max);
+        foreach ($post_times as $time)
+        {
+            $t = $max_date.' '.$time;
+            if (strtotime($t) > $max)
+            {
+                $date = strtotime($t);
+            }
+        }
+
+        if (!$date) {
+            $date = strtotime(date("d.m.Y", $max + 60*60*24)." ".$post_times[0]);
+        }
+    }
+    if (!$date) $date = strtotime(date("d.m.Y", time() + 60*60*24)." ".$post_times[0]);
+
+    foreach ($soc_types as $st => $title)
+    {
+        $posts[] = array(
+            'id' => 0,
+            'type' => $st,
+            'text' => '',
+            'image' => '0',
+            'active' => 1,
+            'date' => date($date_format, $date),
+            'soc_type_title' => $title
+        );
+    }
+}
+
+$b = $dsp->_BuilderPatterns->create_block('posts_edit', 'posts_edit', 'center');
+
+$b_date = $dsp->_Builder->addNode($dsp->_Builder->createNode('date', array(), date($date_format, $date)), $b);
+
+$b_posts = $dsp->_Builder->addNode($dsp->_Builder->createNode('posts', array()), $b);
+
+foreach ($posts as $post)
+{
+    $b_item = $dsp->_Builder->addNode($dsp->_Builder->createNode('item', array()), $b_posts);
+    foreach ($post as $f => $v)
+    {
+        if (isset($_POST['record'][$f])) $v = $_POST['record'][$f];
+        if (!empty($dsp->pages_admin->errors[$p['name']])) $p['error'] = $dsp->pages_admin->errors[$p['name']];
+        $dsp->_Builder->addNode($dsp->_Builder->createNode($f, array(), $v), $b_item);
+    }
+}
+
+
+

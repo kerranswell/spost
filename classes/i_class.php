@@ -911,6 +911,17 @@
             $f['size'] = $_f['size'][$name];
             return $f;
         }
+
+        public function getFileFromArray2($_f, $name, $st)
+        {
+            $f = array();
+            $f['name'] = $_f['name'][$st][$name];
+            $f['type'] = $_f['type'][$st][$name];
+            $f['tmp_name'] = $_f['tmp_name'][$st][$name];
+            $f['error'] = $_f['error'][$st][$name];
+            $f['size'] = $_f['size'][$st][$name];
+            return $f;
+        }
     }
 
     /*

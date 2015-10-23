@@ -1,11 +1,10 @@
 $(function() {
     if ($('.datetimepick').length > 0) {
-        $('.datetimepick').datetimepicker({
+        $('.datetimepick').datepicker({
             showOn: 'both',
-            buttonImage: './admin/images/calendar.png',
+            buttonImage: '/admin/static/img/calendar.png',
             buttonImageOnly: true,
-            dateFormat: 'dd.mm.yy',
-            timeFormat: ' hh:ii'
+            dateFormat: 'dd.mm.yy'
         });
 
         $('#ui-datepicker-div').hide();
