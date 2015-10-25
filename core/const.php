@@ -3,7 +3,9 @@
 //HTTP consts
 if (!empty($_SERVER['HTTP_HOST'])) {
 	define("HOST", $_SERVER['HTTP_HOST']);
-}
+} else define('CRON', 1);
+if (!defined('HOST')) define('HOST', 'dailyhistory.ru');
+
 
 define("HTTP_REL_PATH", '');
 define("SITE", 'http://' . HOST . HTTP_REL_PATH);
@@ -55,8 +57,6 @@ define('TESTS_LOGIC_GROUP_ANSWERS', 4);
 
 define('ARTICLE_TITLE_DELIMITER', "<br>"); // this value must be preg_match pattern valid string! (see admin/art_editor.php)
 
-if (!defined('HOST')) define('HOST', 'tsi.elle.www.hsmdev.ru');
-
 /* SOCIAL CODES */
 define('VK_APP_ID', '5117128');
 define('VK_MY_ID', '3403879');
@@ -69,6 +69,12 @@ define('VK_API_VERSION', '5.37');
 define('FB_APP_ID', '1646293928976787');
 define('FB_APP_SECRET', '1cc0f285ed8af6c5c31ce48ab3c60916');
 define('FB_ACCOUNT_ID', '692946360842537');
+
+define('TW_API_KEY', 'XxcXEKNoXWkKCltwSinb7KLZ6');
+define('TW_API_SECRET', 'SETUy2quzELpTH2k48K5EezfPjFOlIzw04WOtvXWHaqfGdXUCn');
+define('TW_ACCESS_TOKEN', '4040835677-UyOPdrS4zxBAWtVZWrws56BqD4s9lts6KQ4TWND');
+define('TW_ACCESS_TOKEN_SECRET', 'cdmHkElH8kn0sjzMl9UUeKE1LDxhcBBP9mTl8aJlMVpTd');
+define('TW_OWNER_ID', '4040835677');
 
 /* THUMBNAILS CODES */
 define('TH_BG_IMAGE_ADMIN', 1);

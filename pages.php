@@ -1,40 +1,7 @@
-<?php
+<?
 
-$time = time();
+/*$b = $dsp->_BuilderPatterns->create_block('posts_edit', 'posts_edit', 'center');
 
-echo 'Date: '.date("d.m.Y H:i", $time).PHP_EOL;
-//$sql = "select * from posts where `date` >= ? and `date` <= ? and `published` = 0 and `active` = 1 group by `type`";
-//$rows = $dsp->db->Select($sql, $time - 60*15, $time + 60*15);
-$sql = "select * from posts where `date` = 1445709600 group by `type`";
-$rows = $dsp->db->Select($sql);
-$i = 0; $sort_types = array(); foreach ($soc_types as $st => $title) $sort_types[$st] = $i++;
+$b_date = $dsp->_Builder->addNode($dsp->_Builder->createNode('date', array(), date($date_format, $date)), $b);*/
 
-$posts = array();
-foreach ($rows as $row)
-{
-    $posts[$sort_types[$row['type']]] = $row;
-}
-ksort($posts);
-
-$content = [];
-foreach ($posts as &$post)
-{
-    if ($post['text'] != '') $content['text'] = $post['text'];
-    else if (!empty($content['text'])) $post['text'] = $content['text'];
-
-    if ($post['image'] > 0) $content['image'] = $post['image'];
-    else if (!empty($content['image'])) $post['image'] = $content['image'];
-
-    if ($post['url'] > 0) $content['url'] = $post['url'];
-    else if (!empty($content['url'])) $post['url'] = $content['url'];
-
-    if ($post['image'] > 0)
-    {
-        $post['image_url'] = SITE.IMAGE_FOLDER.$dsp->i->getOriginal($post['image']);
-        $post['image_file'] = IMAGE_DIR.$dsp->i->getOriginal($post['image']);
-    }
-
-    $dsp->socials->post($post);
-}
-
-echo 'done.'.PHP_EOL.PHP_EOL;
+$dsp->_Builder->Transform('main.xsl');

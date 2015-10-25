@@ -7,7 +7,7 @@ use Facebook\FacebookRequest;
 use Facebook\FacebookRedirectLoginHelper;
 use Facebook\FacebookSDKException;
 use Facebook\FileUpload\FacebookFile;
-session_start();
+if (!defined(CRON)) if (!session_id()) @session_start();
 
 FacebookSession::setDefaultApplication(FB_APP_ID, FB_APP_SECRET);
 
@@ -71,16 +71,20 @@ class socials {
 
     public function post($post)
     {
-        $time = time();
-        $n = date("n", $time);
-        global $months_rod_pad;
-        $title = "Сегодня ".date("j")." ".$months_rod_pad[$n].PHP_EOL.PHP_EOL;
-        $post['text'] = $title.$post['text'];
+        if ($post['type'] != 'tw')
+        {
+            $time = time();
+            $n = date("n", $time);
+            global $months_rod_pad;
+            $title = "Сегодня ".date("j")." ".$months_rod_pad[$n].PHP_EOL.PHP_EOL;
+            $post['text'] = $title.$post['text'];
+        }
 
         switch ($post['type'])
         {
             case 'vk' : $this->postVK($post); break;
             case 'fb' : $this->postFB($post); break;
+            case 'tw' : $this->postTW($post); break;
         }
     }
 
@@ -154,6 +158,35 @@ class socials {
             }
         }
 
+    }
+
+    public function postTW($post)
+    {
+        if ($post['image'] == 0 && $post['text'] == '' && $post['url'] == '') return;
+
+        // require codebird
+        require_once(LIB_DIR.'codebird-php-develop/src/codebird.php');
+
+        \Codebird\Codebird::setConsumerKey(TW_API_KEY, TW_API_SECRET);
+        $cb = \Codebird\Codebird::getInstance();
+        $cb->setToken(TW_ACCESS_TOKEN, TW_ACCESS_TOKEN_SECRET);
+
+        $params = [];
+        $params['status'] = $post['text'];
+        if ($post['url'] != '') $params['status'] .= ($params['status'] == '' ? '' : ' ').$post['url'];
+        if ($post['image'] > 0) $params['media[]'] = $post['image_file'];
+        if ($post['image'] > 0)
+            $reply = $cb->statuses_updateWithMedia($params);
+        else
+            $reply = $cb->statuses_update($params);
+
+        $status = $reply->httpstatus;
+        if ($status == 200)
+        {
+            $sql = "update posts set published = 1, social_id = ? where `date` = ? and `type` = ?";
+            $this->dsp->db->Execute($sql, $reply->id, $post['date'], $post['type']);
+            echo 'Twitter success: post id '.$reply->id.PHP_EOL;
+        }
     }
 
     protected function curl($url)

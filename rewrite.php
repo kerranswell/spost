@@ -3,6 +3,7 @@
 //$_core_mode_ = 'wrapper';
 require_once(dirname(__FILE__) . "/core/core.php");
 //require_once(CLASS_DIR . "/record_admin_class.php");
+
 $dsp->_Builder->addArray(array('timestamp' => time()));
 
 if (empty($_REQUEST['p_']) && $_SERVER['QUERY_STRING'] == 'er=1')
@@ -68,7 +69,6 @@ if ( array_search('page', $nodes) ) {
 } elseif (isset($_SESSION['notLocalUser'])) {
     $dsp->_Builder->addArray(array('not_local_user' => $_SESSION['notLocalUser']));  
 }*/
-
 
 if (!empty($nodes[0])) {
     if (is_file(ROOT_DIR . $nodes[0] . "/rewrite.php")) {
