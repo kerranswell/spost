@@ -1,7 +1,12 @@
 <?
 
-/*$b = $dsp->_BuilderPatterns->create_block('posts_edit', 'posts_edit', 'center');
+$b = $dsp->_BuilderPatterns->create_block('main', 'main', 'center');
 
-$b_date = $dsp->_Builder->addNode($dsp->_Builder->createNode('date', array(), date($date_format, $date)), $b);*/
+$time = time();
+$n = date("n", $time);
+global $months_rod_pad;
+$date = date("j", $time)." ".$months_rod_pad[$n]." ".date("Y", $time);
+
+$b_date = $dsp->_Builder->addNode($dsp->_Builder->createNode('date', array(), $date), $b);
 
 $dsp->_Builder->Transform('main.xsl');
