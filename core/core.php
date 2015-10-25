@@ -1,4 +1,5 @@
 <?php
+
 function cdata($str){
 	return '<![CDATA['.$str.']]>';
 }

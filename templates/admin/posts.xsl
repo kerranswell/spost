@@ -58,12 +58,28 @@
                 <tr><th style="width: 150px"></th><th></th></tr>
                 <tr><td><xsl:value-of select="soc_type_title"/></td><td><input class="active_check" type="checkbox" name="record[{type}][active]" value="1"><xsl:if test="active = 1"><xsl:attribute
                         name="checked">checked</xsl:attribute></xsl:if> </input></td></tr>
-                <tr><td>Текст</td><td><textarea name="record[{type}][text]"><xsl:value-of select="text"/></textarea></td></tr>
+                <tr><td>Текст</td><td><textarea name="record[{type}][text]">
+                    <xsl:if test="type = 'tw'"><xsl:attribute name="maxlength">140</xsl:attribute></xsl:if>
+                    <xsl:value-of select="text"/></textarea></td></tr>
+                <tr><td>Url</td><td><input type="text" name="record[{type}][url]" value="{url}" /></td></tr>
                 <tr><td>Картинка</td><td><input type="file" name="record[{type}][image]" />
                     <xsl:if test="image != 0"><br /><input type="checkbox" name="{type}_image_delete" value="1" /> Удалить<br /><a href="{image}" target="_blank"><img src="{image_th}" /></a></xsl:if>
                 </td></tr>
             </table>
         </div>
+    </xsl:template>
+
+
+    <xsl:template match="block[@name='tokens']">
+        <xsl:choose>
+            <xsl:when test="status = 'ok'">Успешно!</xsl:when>
+            <xsl:otherwise>
+
+                <a href="{fb_login_url}">Update facebook access token</a>
+
+            </xsl:otherwise>
+        </xsl:choose>
+
     </xsl:template>
     
 </xsl:stylesheet>

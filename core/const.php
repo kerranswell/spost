@@ -59,9 +59,16 @@ if (!defined('HOST')) define('HOST', 'tsi.elle.www.hsmdev.ru');
 
 /* SOCIAL CODES */
 define('VK_APP_ID', '5117128');
-define('VK_SECURE', 'UaZ0bqrz69ZlEyBPlt2A');
-define('VK_ACCESS_TOKEN', '6ee0efb85abbcd4975ea445a87b21f72483ed317ab054d54ac858ca08374386cb34fbc501296f0c294182');
+define('VK_MY_ID', '3403879');
+define('VK_APP_SECRET', 'UaZ0bqrz69ZlEyBPlt2A');
+define('VK_ACCESS_TOKEN', '1d8bb4d2531f9884f417e99c0c37bb243181da629c67098023f08aafcbdc9a0e73ed9dd2200e8d4e549b9');
+define('VK_ACCESS_SECRET', '39cdffa884202998f0');
 define('VK_ACCOUNT_ID', '105226635');
+define('VK_API_VERSION', '5.37');
+
+define('FB_APP_ID', '1646293928976787');
+define('FB_APP_SECRET', '1cc0f285ed8af6c5c31ce48ab3c60916');
+define('FB_ACCOUNT_ID', '692946360842537');
 
 /* THUMBNAILS CODES */
 define('TH_BG_IMAGE_ADMIN', 1);
@@ -90,5 +97,8 @@ $soc_types = array('vk' => 'VK', 'fb' => 'Facebook', 'tw' => 'Twitter', 'ok' => 
 $post_times = array(
     '10:00', '17:00', '21:00',
 );
+
+
+define('DB_LOG', 0);
 
 ?>

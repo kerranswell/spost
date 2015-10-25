@@ -15,7 +15,7 @@ if ($date > 0)
         if ($row['image'] > 0)
         {
             $row['image_th'] = $dsp->i->default_path.$dsp->i->resize($row['image'], TH_IMAGE_EDIT_ADMIN);
-            $row['image'] = SITE.IMAGE_FOLDER.$dsp->i->getOriginal($row['image'], 0);
+            $row['image'] = SITE.IMAGE_FOLDER.$dsp->i->getOriginal($row['image']);
         }
         $posts[$sort_types[$row['type']]] = $row;
     }
@@ -35,6 +35,7 @@ if ($date > 0)
             if (strtotime($t) > $max)
             {
                 $date = strtotime($t);
+                break;
             }
         }
 
@@ -53,6 +54,7 @@ if ($date > 0)
             'image' => '0',
             'active' => 1,
             'date' => date($date_format, $date),
+            'url' => '',
             'soc_type_title' => $title
         );
     }
@@ -69,8 +71,7 @@ foreach ($posts as $post)
     $b_item = $dsp->_Builder->addNode($dsp->_Builder->createNode('item', array()), $b_posts);
     foreach ($post as $f => $v)
     {
-        if (isset($_POST['record'][$f])) $v = $_POST['record'][$f];
-        if (!empty($dsp->pages_admin->errors[$p['name']])) $p['error'] = $dsp->pages_admin->errors[$p['name']];
+        if (isset($_POST['record'][$post['type']][$f])) $v = $_POST['record'][$post['type']][$f];
         $dsp->_Builder->addNode($dsp->_Builder->createNode($f, array(), $v), $b_item);
     }
 }

@@ -36,10 +36,12 @@ class posts_admin extends record {
         global $soc_types;
 
         $date = strtotime($_POST['date']);
+        $req_date = $_GET['date'];
+
         $posts = array();
-        if ($date > 0)
+        if ($req_date > 0)
         {
-            $posts = $this->GetPosts($date, 'image, type');
+            $posts = $this->GetPosts($req_date, 'image, type');
         }
 
         $save = $_POST['record'];
@@ -73,16 +75,14 @@ class posts_admin extends record {
 
         foreach ($soc_types as $st => $t)
         {
-            $sql = "select count(*) from `posts` where `date` = ? and `type` = ?";
-            $t = $this->dsp->db->SelectValue($sql, $date, $st);
-            if ($t > 0)
+            if ($req_date > 0)
             {
                 if (!isset($save[$st]['image'])) $save[$st]['image'] = $posts[$st]['image'];
-                $sql = "update `posts` set `text` = ?, `image` = ?, `active` = ? where `date` = ? and `type` = ?";
-                $this->dsp->db->Execute($sql, $save[$st]['text'], $save[$st]['image'], !empty($save[$st]['active']) ? 1 : 0, $date, $st);
+                $sql = "update `posts` set `text` = ?, `image` = ?, `active` = ?, `date` = ?, `url` = ? where `date` = ? and `type` = ?";
+                $this->dsp->db->Execute($sql, $save[$st]['text'], $save[$st]['image'], !empty($save[$st]['active']) ? 1 : 0, $date, $save[$st]['url'], $req_date, $st);
             } else {
-                $sql = "insert into `posts` (`type`, `text`, `image`, `active`, `date`) values (?, ?, ?, ?, ?)".'';
-                $this->dsp->db->Execute($sql, $st, $save[$st]['text'], $save[$st]['image'], !empty($save[$st]['active']) ? 1 : 0, $date);
+                $sql = "insert into `posts` (`type`, `text`, `image`, `active`, `date`, `url`) values (?, ?, ?, ?, ?, ?)".'';
+                $this->dsp->db->Execute($sql, $st, $save[$st]['text'], $save[$st]['image'], !empty($save[$st]['active']) ? 1 : 0, $date, $save[$st]['url']);
             }
         }
 

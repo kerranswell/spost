@@ -1,5 +1,6 @@
 <?php
 
+namespace BW;
 
 /**
  * The Vkontakte PHP SDK
@@ -187,6 +188,7 @@ class Vkontakte
                 $query[$param] = implode(',', $value);
             }
         }
+
         $query['access_token'] = isset($this->accessToken['access_token'])
             ? $this->accessToken['access_token']
             : '';
@@ -390,11 +392,7 @@ class Vkontakte
      */
     public function setAccessToken($token)
     {
-        if (is_string($token)) {
-            $this->accessToken = json_decode($token, true);
-        } else {
-            $this->accessToken = (array)$token;
-        }
+        $this->accessToken = ['access_token' => $token];
 
         return $this;
     }
@@ -451,7 +449,7 @@ class Vkontakte
         }
 
         if (isset($errno) && isset($error)) {
-            throw new Exception($error, $errno);
+            throw new \Exception($error, $errno);
         }
 
         return $result;
