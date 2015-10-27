@@ -141,3 +141,7 @@ ul.path li {
 .filter_go {
     margin: 5px;
 }
+
+tr.blank td {
+    background-color: #aaa;
+}

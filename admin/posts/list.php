@@ -24,6 +24,7 @@ foreach ($posts as $date => $post)
     ksort($post);
     $b_item = $dsp->_Builder->addNode($dsp->_Builder->createNode('item', array()), $b_list);
     $content = array('types' => array());
+    $blank = 0;
     foreach ($post as $p)
     {
         if (!$p['active']) continue;
@@ -31,10 +32,12 @@ foreach ($posts as $date => $post)
         if ($p['text'] != '' && !isset($content['text'])) $content['text'] = $p['text'];
         if ($p['image'] != 0 && !isset($content['image'])) $content['image'] = $p['image'];
         $content['types'][] = $soc_types[$p['type']];
+        if ($p['blank']) $blank = 1;
     }
     if (count($content['types']) > 0) $content['types'] = implode(', ', $content['types']);
 
     $content['date'] = $date;
+    $content['blank'] = $blank;
     $content['date_title'] = date('d.m.Y H:i', $date);
     if ($content['image'] > 0)
     {

@@ -4,6 +4,7 @@ $date_format = "d.m.Y H:i";
 $date = $_REQUEST['date'];
 
 $posts = array();
+$blank = 0;
 
 if ($date > 0)
 {
@@ -17,13 +18,14 @@ if ($date > 0)
             $row['image_th'] = $dsp->i->default_path.$dsp->i->resize($row['image'], TH_IMAGE_EDIT_ADMIN);
             $row['image'] = SITE.IMAGE_FOLDER.$dsp->i->getOriginal($row['image']);
         }
+        if ($row['blank']) $blank = 1;
         $posts[$sort_types[$row['type']]] = $row;
     }
     ksort($posts);
 
 } else {
 
-    $sql = "Select max(`date`) from `posts`";
+    $sql = "Select max(`date`) from `posts` where `blank` = 0";
     $max = $dsp->db->SelectValue($sql);
     $date = 0;
     if ($max > 0)
@@ -55,6 +57,7 @@ if ($date > 0)
             'active' => 1,
             'date' => date($date_format, $date),
             'url' => '',
+            'blank' => 0,
             'soc_type_title' => $title
         );
     }
@@ -63,6 +66,7 @@ if ($date > 0)
 $b = $dsp->_BuilderPatterns->create_block('posts_edit', 'posts_edit', 'center');
 
 $b_date = $dsp->_Builder->addNode($dsp->_Builder->createNode('date', array(), date($date_format, $date)), $b);
+$b_blank = $dsp->_Builder->addNode($dsp->_Builder->createNode('blank', array(), $blank), $b);
 
 $b_posts = $dsp->_Builder->addNode($dsp->_Builder->createNode('posts', array()), $b);
 

@@ -16,6 +16,12 @@ $(function() {
         return true;
     });
 
+    $('#publish_now').click(function() {
+        if (!confirm('Вы уверены?')) return false;
+
+        return true;
+    });
+
     $('.tree_node_list[sortable="1"]').sortable({
         items : 'tr:not(.table_header)',
         handle: 'div.drag',

@@ -27,6 +27,7 @@
         <table border="0" class="tree_node_list">
             <xsl:for-each select="item">
                 <tr>
+                    <xsl:if test="blank = 1"><xsl:attribute name="class">blank</xsl:attribute></xsl:if>
                     <td><xsl:value-of select="date_title"/></td>
                     <td><xsl:value-of select="text"/></td>
                     <td><xsl:value-of select="types"/></td>
@@ -51,13 +52,18 @@
                     Одну дату пишем только если это дата по Григорианскому календарю. Старую дату писать только в паре.<br/>
                     Не забываем проверять правильность дат и их соответствие правильному календарю!
                 </div>
+                Заготовка <input type="checkbox" name="blank" value="1"><xsl:if test="blank = 1"><xsl:attribute
+                        name="checked">checked</xsl:attribute></xsl:if> </input>
                 <xsl:apply-templates select="posts/item" mode="post_edit"/>
                 <input type="submit" value="Сохранить" name="save" />
+                <xsl:if test="/root/common/_get/date &gt; 0">
+                    <input type="submit" style="margin-left: 20px;" value="Опубликовать сейчас" id="publish_now" name="publish" />
+                </xsl:if>
             <input type="hidden" name="do_save" value="1" />
             <input type="hidden" name="op" value="{/root/common/op}" />
             <input type="hidden" name="opcode" value="item_edit" />
             <input type="hidden" name="no_redirect" value="1" />
-            </div>
+            </div><br /><br /><br />
         </form>
 	</xsl:template>
 
@@ -84,7 +90,8 @@
             <xsl:when test="status = 'ok'">Успешно!</xsl:when>
             <xsl:otherwise>
 
-                <a href="{fb_login_url}">Update facebook access token</a>
+                <a href="{fb_login_url}">Update facebook access token</a><br /><br />
+                <!--<a href="{fb_login_url}">Get OK.ru access token</a>-->
 
             </xsl:otherwise>
         </xsl:choose>

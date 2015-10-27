@@ -1,6 +1,7 @@
 <?php
 
 require_once(LIB_DIR."facebook-v4/autoload.php");
+require_once(LIB_DIR."okphp_v1.php");
 
 use Facebook\FacebookSession;
 use Facebook\FacebookRequest;
@@ -14,10 +15,24 @@ FacebookSession::setDefaultApplication(FB_APP_ID, FB_APP_SECRET);
 class socials {
 
     public $fb_redirect_url;
+    public $ok_redirect_url;
+    public $errors = [];
 
     public function socials()
     {
         $this->fb_redirect_url = SITE.'/admin/?op=posts&act=tokens&type=fb';
+        $this->ok_redirect_url = SITE.'/admin/?op=posts&act=tokens&type=ok';
+    }
+
+    public function getOKLoginUrl()
+    {
+        $ok = new Social_APIClient_Odnoklassniki(
+            array(
+                'client_id' => OK_APP_ID,
+                'application_key' => OK_PUBLIC_KEY,
+                'client_secret' => OK_SECRET_KEY
+            )
+        );
     }
 
     public function getFBLoginUrl()
@@ -71,20 +86,21 @@ class socials {
 
     public function post($post)
     {
-        if ($post['type'] != 'tw')
+/*        if ($post['type'] != 'tw')
         {
             $time = time();
             $n = date("n", $time);
             global $months_rod_pad;
             $title = "Сегодня ".date("j")." ".$months_rod_pad[$n].PHP_EOL.PHP_EOL;
             $post['text'] = $title.$post['text'];
-        }
+        }*/
 
         switch ($post['type'])
         {
-            case 'vk' : $this->postVK($post); break;
-            case 'fb' : $this->postFB($post); break;
-            case 'tw' : $this->postTW($post); break;
+//            case 'vk' : $this->postVK($post); break;
+//            case 'fb' : $this->postFB($post); break;
+//            case 'tw' : $this->postTW($post); break;
+            case 'ok' : $this->postOK($post); break;
         }
     }
 
@@ -99,7 +115,9 @@ class socials {
         $attachments = [];
         if ($post['image'] > 0)
         {
-            $attachments[] = $vk->createPhotoAttachment($post['image_file']);
+            $p = $vk->createPhotoAttachment($post['image_file']);
+            if ($p) $attachments[] = $p;
+            else $this->errors[] = ['type' => 'vk', 'message' => 'error loading photo'];
         }
 
         if ($post['url'] != '')
@@ -117,6 +135,9 @@ class socials {
             $this->dsp->db->Execute($sql, $r->response->post_id, $post['date'], $post['type']);
 
             echo 'VK success: post id '.$r->response->post_id.PHP_EOL;
+        } else {
+            echo 'VK failed'.print_r($r, true).PHP_EOL;
+            $this->errors[] = ['type' => 'vk', 'message' => 'error posting', 'reply' => print_r($r, true)];
         }
 
     }
@@ -132,7 +153,15 @@ class socials {
 
         $params = [];
         $params['message'] = $post['text'];
-        if ($post['url'] != '') $params['link'] = $post['url'];
+        if ($post['url'] != '')
+        {
+            if ($post['image'] > 0)
+            {
+                $params['message']  .= PHP_EOL.$post['url'];
+            } else {
+                $params['link'] = $post['url'];
+            }
+        }
 
 /*        if ($post['image'] > 0)
         {
@@ -155,7 +184,10 @@ class socials {
             } catch (FacebookRequestException $e) {
                 echo "Exception occured, code: " . $e->getCode();
                 echo " with message: " . $e->getMessage();
+                $this->errors[] = ['type' => 'fb', 'message' => 'failed posting', 'reply' => print_r($response, true), 'error' => print_r($e, true)];
             }
+        } else {
+            $this->errors[] = ['type' => 'fb', 'message' => 'Couldn\'t initialize session', 'reply' => print_r($session, true)];
         }
 
     }
@@ -197,6 +229,7 @@ class socials {
             echo 'Twitter success: post id '.$reply->id.PHP_EOL;
         } else {
             echo 'Twitter failed: '.print_r($reply, true).PHP_EOL;
+            $this->errors[] = ['type' => 'tw', 'message' => 'failed posting', 'reply' => print_r($reply, true)];
         }
     }
 
@@ -205,33 +238,107 @@ class socials {
         echo 1; exit;
     }
 
-    protected function curl($url)
+    public function prepareAndPublish($posts)
     {
-        $ch = curl_init();
+        $content = [];
+        foreach ($posts as &$post)
+        {
+            if ($post['text'] != '')
+            {
+                if (empty($content['text'])) $content['text'] = $post['text'];
+            } else if (!empty($content['text'])) {
+                $post['text'] = $content['text'];
+                if ($post['type'] == 'tw')
+                {
+                    $post['text'] = mb_substr($post['text'], 0, 137, 'utf-8').'...';
+                }
+            }
 
-        // set url
-        curl_setopt($ch, CURLOPT_URL, $url);
-        // return the transfer as a string
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        // disable SSL verifying
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            if ($post['image'] > 0) $content['image'] = $post['image'];
+            else if (!empty($content['image'])) $post['image'] = $content['image'];
 
-        // $output contains the output string
-        $result = curl_exec($ch);
+            if ($post['url'] > 0) $content['url'] = $post['url'];
+            else if (!empty($content['url'])) $post['url'] = $content['url'];
 
-        if (!$result) {
-            $errno = curl_errno($ch);
-            $error = curl_error($ch);
+            if ($post['image'] > 0)
+            {
+                $post['image_url'] = SITE.IMAGE_FOLDER.$this->dsp->i->getOriginal($post['image']);
+                $post['image_file'] = IMAGE_DIR.$this->dsp->i->getOriginal($post['image']);
+            }
+
+            $this->dsp->socials->post($post);
         }
-
-        curl_close($ch);
-
-        if (isset($errno) && isset($error)) {
-            throw new \Exception($error, $errno);
-        }
-
-        return $result;
     }
 
+    public function postOK($post)
+    {
+        if ($post['image'] == 0 && $post['text'] == '' && $post['url'] == '') return;
+
+        $ok = new Social_APIClient_Odnoklassniki(
+            array(
+                'client_id' => OK_APP_ID,
+                'application_key' => OK_PUBLIC_KEY,
+                'client_secret' => OK_SECRET_KEY
+            )
+        );
+
+        $ok->setToken(OK_ACCESS_TOKEN);
+
+        $attachment = ['media' => []];
+        if ($post['text'] != '')
+        {
+            $attachment['media'][] = ['type' => 'text', 'text' => $post['text']];
+        }
+
+        if ($post['url'] != '')
+        {
+            $attachment['media'][] = ['type' => 'link', 'url' => $post['url']];
+        }
+
+        if ($post['image'] > 0)
+        {
+            $r = $ok->api("photosV2.getUploadUrl", ['gid' => OK_ACCOUNT_ID]);
+            if (!empty($r['upload_url'])) $upload_url = $r['upload_url'];
+
+            if ($upload_url)
+            {
+                $photo_id = $r['photo_ids'][0];
+
+                $ch = curl_init($upload_url);
+                curl_setopt($ch, CURLOPT_HEADER, false);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, array(
+                    'photo' => '@' . $post['image_file']
+                ));
+
+                if (($upload = curl_exec($ch)) === false) {
+                    throw new Exception(curl_error($ch));
+                    $this->errors[] = ['type' => 'ok', 'message' => 'photo upload failed'];
+                }
+
+                curl_close($ch);
+                $upload = json_decode($upload);
+                if (!empty($upload->photos->$photo_id->token))
+                    $attachment['media'][] = ['type' => 'photo', 'list' => [['id' => strval($upload->photos->$photo_id->token)]]];
+            } else {
+                $this->errors[] = ['type' => 'ok', 'message' => 'photo upload failed', 'reply' => print_r($r, true)];
+            }
+
+        }
+
+        $attachment = json_encode($attachment);
+
+        $post_id = $ok->api('mediatopic.post', array('type' => 'GROUP_THEME', 'gid' => OK_ACCOUNT_ID, 'attachment' => $attachment));
+        if ($post_id > 0)
+        {
+            $sql = "update posts set published = 1, social_id = ? where `date` = ? and `type` = ?";
+            $this->dsp->db->Execute($sql, $post_id, $post['date'], $post['type']);
+            echo 'OKs success: post id '.$post_id.PHP_EOL;
+        } else {
+            echo 'OKs failed'.PHP_EOL;
+            $this->errors[] = ['type' => 'ok', 'message' => 'failed posting'];
+        }
+    }
 
 }

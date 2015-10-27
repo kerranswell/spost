@@ -36,6 +36,7 @@ class posts_admin extends record {
         global $soc_types;
 
         $date = strtotime($_POST['date']);
+        $blank = empty($_POST['blank']) ? 0 : 1;
         $req_date = $_GET['date'];
 
         $posts = array();
@@ -73,16 +74,33 @@ class posts_admin extends record {
             return;
         }
 
+        if ($_POST['publish'])
+        {
+            foreach ($soc_types as $st => $t)
+            {
+                if (!isset($save[$st]['image'])) $save[$st]['image'] = $posts[$st]['image'];
+            }
+
+            $date = time();
+
+            ob_start();
+            $this->dsp->socials->prepareAndPublish($save);
+            if (count($this->dsp->socials->errors) > 0)
+            {
+                print_r($this->dsp->socials->errors); exit;
+            }
+        }
+
         foreach ($soc_types as $st => $t)
         {
             if ($req_date > 0)
             {
                 if (!isset($save[$st]['image'])) $save[$st]['image'] = $posts[$st]['image'];
-                $sql = "update `posts` set `text` = ?, `image` = ?, `active` = ?, `date` = ?, `url` = ? where `date` = ? and `type` = ?";
-                $this->dsp->db->Execute($sql, $save[$st]['text'], $save[$st]['image'], !empty($save[$st]['active']) ? 1 : 0, $date, $save[$st]['url'], $req_date, $st);
+                $sql = "update `posts` set `text` = ?, `image` = ?, `active` = ?, `date` = ?, `url` = ?, `blank` = ? where `date` = ? and `type` = ?";
+                $this->dsp->db->Execute($sql, $save[$st]['text'], $save[$st]['image'], !empty($save[$st]['active']) ? 1 : 0, $date, $save[$st]['url'], $blank, $req_date, $st);
             } else {
-                $sql = "insert into `posts` (`type`, `text`, `image`, `active`, `date`, `url`) values (?, ?, ?, ?, ?, ?)".'';
-                $this->dsp->db->Execute($sql, $st, $save[$st]['text'], $save[$st]['image'], !empty($save[$st]['active']) ? 1 : 0, $date, $save[$st]['url']);
+                $sql = "insert into `posts` (`type`, `text`, `image`, `active`, `date`, `url`, `blank`) values (?, ?, ?, ?, ?, ?, ?)".'';
+                $this->dsp->db->Execute($sql, $st, $save[$st]['text'], $save[$st]['image'], !empty($save[$st]['active']) ? 1 : 0, $date, $save[$st]['url'], $blank);
             }
         }
 
