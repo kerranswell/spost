@@ -97,9 +97,9 @@ class socials {
 
         switch ($post['type'])
         {
-//            case 'vk' : $this->postVK($post); break;
-//            case 'fb' : $this->postFB($post); break;
-//            case 'tw' : $this->postTW($post); break;
+            case 'vk' : $this->postVK($post); break;
+            case 'fb' : $this->postFB($post); break;
+            case 'tw' : $this->postTW($post); break;
             case 'ok' : $this->postOK($post); break;
         }
     }
