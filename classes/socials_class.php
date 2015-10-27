@@ -189,6 +189,11 @@ class socials {
         }
     }
 
+    public function twitterTest()
+    {
+        echo 1; exit;
+    }
+
     protected function curl($url)
     {
         $ch = curl_init();
