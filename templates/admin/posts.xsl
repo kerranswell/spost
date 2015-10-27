@@ -42,6 +42,15 @@
         <form method="post" class="edit_item_form" action="" enctype="multipart/form-data">
             <div class="posts_edit">
             Дата: <input type="text" value="{date}" name="date" /><br />
+                <div style="font-size: 14px; color: #777; padding: 5px;">
+                    Памятка по датам:<br />
+                    Первый день по Григорианскому календарю - 14 февраля 1918<br/>
+                    Последний день по Юлианскому календарю - 31 января 1918<br/>
+                    <a href="http://www.direct-time.ru/index.php?id=12#" target="_blank">Калькулятор</a><br /><br />
+                    Две даты пишем в формате: Новая дата (старая дата).<br />
+                    Одну дату пишем только если это дата по Григорианскому календарю. Старую дату писать только в паре.<br/>
+                    Не забываем проверять правильность дат и их соответствие правильному календарю!
+                </div>
                 <xsl:apply-templates select="posts/item" mode="post_edit"/>
                 <input type="submit" value="Сохранить" name="save" />
             <input type="hidden" name="do_save" value="1" />
@@ -59,7 +68,7 @@
                 <tr><td><xsl:value-of select="soc_type_title"/></td><td><input class="active_check" type="checkbox" name="record[{type}][active]" value="1"><xsl:if test="active = 1"><xsl:attribute
                         name="checked">checked</xsl:attribute></xsl:if> </input></td></tr>
                 <tr><td>Текст</td><td><textarea name="record[{type}][text]">
-                    <xsl:if test="type = 'tw'"><xsl:attribute name="maxlength">140</xsl:attribute></xsl:if>
+                    <xsl:if test="type = 'tw'"><xsl:attribute name="maxlength">106</xsl:attribute></xsl:if>
                     <xsl:value-of select="text"/></textarea></td></tr>
                 <tr><td>Url</td><td><input type="text" name="record[{type}][url]" value="{url}" /></td></tr>
                 <tr><td>Картинка</td><td><input type="file" name="record[{type}][image]" />

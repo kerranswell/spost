@@ -6,8 +6,8 @@ use Facebook\FacebookSession;
 use Facebook\FacebookRequest;
 use Facebook\FacebookRedirectLoginHelper;
 use Facebook\FacebookSDKException;
-use Facebook\FileUpload\FacebookFile;
-if (!defined(CRON)) if (!session_id()) @session_start();
+
+if (!defined('CRON')) if (!session_id()) @session_start();
 
 FacebookSession::setDefaultApplication(FB_APP_ID, FB_APP_SECRET);
 
@@ -173,12 +173,21 @@ class socials {
 
         $params = [];
         $params['status'] = $post['text'];
-        if ($post['url'] != '') $params['status'] .= ($params['status'] == '' ? '' : ' ').$post['url'];
+//        if ($post['url'] != '') $params['status'] .= ($params['status'] == '' ? '' : ' ').$post['url'];
         if ($post['image'] > 0) $params['media[]'] = $post['image_file'];
+
+/*        if(!Normalizer::isNormalized($params['status'],Normalizer::FORM_C)){
+            $params['status'] = Normalizer::normalize($params['status'],Normalizer::FORM_C);
+        }*/
+
+/*        $params['status'] = iconv('Windows-1251', 'UTF-8', $params['status']);
+        echo $params['status']; exit;*/
+
         if ($post['image'] > 0)
             $reply = $cb->statuses_updateWithMedia($params);
         else
             $reply = $cb->statuses_update($params);
+
 
         $status = $reply->httpstatus;
         if ($status == 200)
@@ -186,6 +195,8 @@ class socials {
             $sql = "update posts set published = 1, social_id = ? where `date` = ? and `type` = ?";
             $this->dsp->db->Execute($sql, $reply->id, $post['date'], $post['type']);
             echo 'Twitter success: post id '.$reply->id.PHP_EOL;
+        } else {
+            echo 'Twitter failed: '.print_r($reply, true).PHP_EOL;
         }
     }
 

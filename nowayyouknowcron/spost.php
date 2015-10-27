@@ -7,7 +7,7 @@ echo 'Date: '.date("d.m.Y H:i", $time).PHP_EOL;
 
 $sql = "select * from posts where `date` >= ? and `date` <= ? and `published` = 0 and `active` = 1 group by `type`";
 $rows = $dsp->db->Select($sql, $time - 60*2, $time + 60*2);
-//$sql = "select * from posts where `date` = 1445709600 and `type` = 'tw' group by `type`";
+//$sql = "select * from posts where `date` = 1445868000 group by `type`";
 //$rows = $dsp->db->Select($sql);
 $i = 0; $sort_types = array(); foreach ($soc_types as $st => $title) $sort_types[$st] = $i++;
 
@@ -21,8 +21,16 @@ ksort($posts);
 $content = [];
 foreach ($posts as &$post)
 {
-    if ($post['text'] != '') $content['text'] = $post['text'];
-    else if (!empty($content['text'])) $post['text'] = $content['text'];
+    if ($post['text'] != '')
+    {
+        if (empty($content['text'])) $content['text'] = $post['text'];
+    } else if (!empty($content['text'])) {
+        $post['text'] = $content['text'];
+        if ($post['type'] == 'tw')
+        {
+            $post['text'] = mb_substr($post['text'], 0, 137, 'utf-8').'...';
+        }
+    }
 
     if ($post['image'] > 0) $content['image'] = $post['image'];
     else if (!empty($content['image'])) $post['image'] = $content['image'];
