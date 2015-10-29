@@ -17,9 +17,19 @@ class socials {
     public $fb_redirect_url;
     public $ok_redirect_url;
     public $errors = [];
+    public $settings = [];
+    public $public_settings = [];
 
-    public function socials()
+    public function Init()
     {
+        $sql = "select * from `social_tokens`";
+        $rows = $this->dsp->db->Select($sql);
+        foreach ($rows as $row)
+        {
+            $this->settings[$row['type']] = $row['value'];
+            if ($row['public'] == 1) $this->public_settings[$row['type']] = $row['value'];
+        }
+
         $this->fb_redirect_url = SITE.'/admin/?op=posts&act=tokens&type=fb';
         $this->ok_redirect_url = SITE.'/admin/?op=posts&act=tokens&type=ok';
     }
@@ -128,7 +138,10 @@ class socials {
         if (count($attachments) > 0) $attachments = implode(',', $attachments);
         else $attachments = null;
 
-        $r = $vk->wallPostAttachment($attachments, $post['text']);
+        $text = $post['text'];
+        if (!empty($post['tags'])) $text .= PHP_EOL.$post['tags'];
+
+        $r = $vk->wallPostAttachment($attachments, $text);
         if (!empty($r->response->post_id) && $r->response->post_id > 0)
         {
             $sql = "update posts set published = 1, social_id = ? where `date` = ? and `type` = ?";
@@ -153,6 +166,7 @@ class socials {
 
         $params = [];
         $params['message'] = $post['text'];
+        if (!empty($post['tags'])) $params['message'] .= PHP_EOL.$post['tags'];
         if ($post['url'] != '')
         {
             if ($post['image'] > 0)
@@ -205,15 +219,12 @@ class socials {
 
         $params = [];
         $params['status'] = $post['text'];
+
+        if(!Normalizer::isNormalized($params['status'],Normalizer::FORM_C)){
+            $params['status'] = Normalizer::normalize($params['status'],Normalizer::FORM_C);
+        }
 //        if ($post['url'] != '') $params['status'] .= ($params['status'] == '' ? '' : ' ').$post['url'];
         if ($post['image'] > 0) $params['media[]'] = $post['image_file'];
-
-/*        if(!Normalizer::isNormalized($params['status'],Normalizer::FORM_C)){
-            $params['status'] = Normalizer::normalize($params['status'],Normalizer::FORM_C);
-        }*/
-
-/*        $params['status'] = iconv('Windows-1251', 'UTF-8', $params['status']);
-        echo $params['status']; exit;*/
 
         if ($post['image'] > 0)
             $reply = $cb->statuses_updateWithMedia($params);
@@ -233,9 +244,44 @@ class socials {
         }
     }
 
+    public function updateTWConfiguration()
+    {
+        require_once(LIB_DIR.'codebird-php-develop/src/codebird.php');
+
+        \Codebird\Codebird::setConsumerKey(TW_API_KEY, TW_API_SECRET);
+        $cb = \Codebird\Codebird::getInstance();
+        $cb->setToken(TW_ACCESS_TOKEN, TW_ACCESS_TOKEN_SECRET);
+
+        $reply = $cb->help_configuration([]);
+        if ($reply->httpstatus == 200)
+        {
+            $this->dsp->db->Execute("update `social_tokens` set `value` = ? where `type` = 'tw_characters_per_media'", $reply->characters_reserved_per_media);
+            $this->dsp->db->Execute("update `social_tokens` set `value` = ? where `type` = 'tw_short_url_length'", $reply->short_url_length);
+            $this->dsp->db->Execute("update `social_tokens` set `value` = ? where `type` = 'tw_short_url_length_https'", $reply->short_url_length_https);
+
+            Redirect('/admin/?op=posts&act=tokens&ok');
+        } else {
+            echo 'Failed.<br /><pre>';
+            print_r($reply);
+            echo '</pre>';
+            exit;
+        }
+    }
+
     public function twitterTest()
     {
-        echo 1; exit;
+        // require codebird
+        require_once(LIB_DIR.'codebird-php-develop/src/codebird.php');
+
+        \Codebird\Codebird::setConsumerKey(TW_API_KEY, TW_API_SECRET);
+        $cb = \Codebird\Codebird::getInstance();
+        $cb->setToken(TW_ACCESS_TOKEN, TW_ACCESS_TOKEN_SECRET);
+
+        $params = [];
+        $params['status'] = '31 октября (19 октября) 1811 года открылся Императорский Царскосельский лицей. 31 октября (19 октября) 1811 года открылся Императорский Цафф';
+//        $params['status'] = 'Chinese ships and aircraft warned and tracked a U.S. Navy warship Tuesday as it came close to reefs claimed by China in contested waters ina';
+        $reply = $cb->statuses_update($params);
+        print_r($reply); exit;
     }
 
     public function prepareAndPublish($posts)
@@ -243,22 +289,21 @@ class socials {
         $content = [];
         foreach ($posts as &$post)
         {
+            if ($post['image'] > 0) $content['image'] = $post['image'];
+            else if (!empty($content['image'])) $post['image'] = $content['image'];
+
             if ($post['text'] != '')
             {
                 if (empty($content['text'])) $content['text'] = $post['text'];
             } else if (!empty($content['text'])) {
                 $post['text'] = $content['text'];
-                if ($post['type'] == 'tw')
-                {
-                    $post['text'] = mb_substr($post['text'], 0, 137, 'utf-8').'...';
-                }
             }
 
-            if ($post['image'] > 0) $content['image'] = $post['image'];
-            else if (!empty($content['image'])) $post['image'] = $content['image'];
-
-            if ($post['url'] > 0) $content['url'] = $post['url'];
+            if ($post['url'] != '') $content['url'] = $post['url'];
             else if (!empty($content['url'])) $post['url'] = $content['url'];
+
+            if ($post['tags'] != '') $content['tags'] = $post['tags'];
+            else if (!empty($content['tags'])) $post['tags'] = $content['tags'];
 
             if ($post['image'] > 0)
             {

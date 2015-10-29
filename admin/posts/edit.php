@@ -57,7 +57,9 @@ if ($date > 0)
             'active' => 1,
             'date' => date($date_format, $date),
             'url' => '',
+            'tags' => '',
             'blank' => 0,
+            'published' => 0,
             'soc_type_title' => $title
         );
     }

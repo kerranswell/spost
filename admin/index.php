@@ -38,7 +38,7 @@
 
     $op = $_REQUEST['op'];
 
-    $common = array('op' => $op, '_get' => $_GET);
+    $common = array('op' => $op, '_get' => $_GET, 'socials' => $dsp->socials->public_settings);
     $b_common = $dsp->_Builder->addNode($dsp->_Builder->createNode('common', array()));
     $dsp->_Builder->addArray($common, '', array(), $b_common, false);
 

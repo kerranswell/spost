@@ -56,4 +56,29 @@ $(function() {
 
     });
 
+    $('#tw_text').on('keyup paste', function (){
+        twitterCount($(this).val().length);
+    });
+
+    function twitterCount(l)
+    {
+        var tw = $('#tw_count');
+        tw.text(l);
+        var pic_l = parseInt($('#tw_characters_per_media').val());
+        var url_l = parseInt($('#tw_short_url_length').val());
+        if (l > (140-pic_l) && l <= 140)
+        {
+            if (!tw.hasClass('green')) tw.addClass('green')
+            if (tw.hasClass('red')) tw.removeClass('red');
+        } else if (l > 140) {
+            if (!tw.hasClass('red')) tw.addClass('red')
+            if (tw.hasClass('green')) tw.removeClass('green');
+        } else {
+            if (tw.hasClass('red')) tw.removeClass('red');
+            if (tw.hasClass('green')) tw.removeClass('green');
+        }
+    }
+
+    twitterCount($('#tw_text').val().length);
+
 });

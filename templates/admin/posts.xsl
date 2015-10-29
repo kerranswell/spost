@@ -43,7 +43,7 @@
         <form method="post" class="edit_item_form" action="" enctype="multipart/form-data">
             <div class="posts_edit">
             Дата: <input type="text" value="{date}" name="date" /><br />
-                <div style="font-size: 14px; color: #777; padding: 5px;">
+                <div class="hint">
                     Памятка по датам:<br />
                     Первый день по Григорианскому календарю - 14 февраля 1918<br/>
                     Последний день по Юлианскому календарю - 31 января 1918<br/>
@@ -71,12 +71,35 @@
         <div class="post_edit">
             <table>
                 <tr><th style="width: 150px"></th><th></th></tr>
-                <tr><td><xsl:value-of select="soc_type_title"/></td><td><input class="active_check" type="checkbox" name="record[{type}][active]" value="1"><xsl:if test="active = 1"><xsl:attribute
+                <tr><td><xsl:value-of select="soc_type_title"/><xsl:if test="published = 1"> (<span style="color: red">опубликовано</span>)</xsl:if></td><td><input class="active_check" type="checkbox" name="record[{type}][active]" value="1"><xsl:if test="active = 1"><xsl:attribute
                         name="checked">checked</xsl:attribute></xsl:if> </input></td></tr>
-                <tr><td>Текст</td><td><textarea name="record[{type}][text]">
-                    <xsl:if test="type = 'tw'"><xsl:attribute name="maxlength">106</xsl:attribute></xsl:if>
-                    <xsl:value-of select="text"/></textarea></td></tr>
-                <tr><td>Url</td><td><input type="text" name="record[{type}][url]" value="{url}" /></td></tr>
+                <tr><td>Текст</td><td><textarea id="{type}_text" name="record[{type}][text]">
+                    <!--<xsl:if test="type = 'tw'"><xsl:attribute name="maxlength">140</xsl:attribute></xsl:if>-->
+                    <xsl:value-of select="text"/></textarea>
+                    <xsl:if test="type = 'tw'">
+                        <input type="hidden" id="tw_characters_per_media" value="{/root/common/socials/tw_characters_per_media}" />
+                        <input type="hidden" id="tw_short_url_length" value="{/root/common/socials/tw_short_url_length}" />
+                        <div id="tw_count"></div>
+                        <div class="hint">
+                        Ссылка для twitter кодируется в укороченный вариант <a href="http://tiny.cc/" target="_blank">здесь</a> и вставляется в текст.<br />
+                        При копировании текста в поле следите, чтобы количество символов не превышало <b>140</b>, иначе твиттер не примет сообщение!<br />
+                        Если предполагается <b>картинка</b>, то количество символов не должно превышать <b><xsl:value-of
+                                select="140-/root/common/socials/tw_characters_per_media"/>!</b><br />
+                        Если вставляется короткая <b>ссылка</b> в текст, то количество символов не должно превышать <b><xsl:value-of
+                                select="140-/root/common/socials/tw_short_url_length + 21"/></b>,<br />а с картинкой соответственно <b><xsl:value-of
+                                select="140 + 21 -/root/common/socials/tw_characters_per_media - /root/common/socials/tw_short_url_length"/></b>!<br />
+                    </div></xsl:if>
+                </td></tr>
+                <xsl:choose>
+                    <xsl:when test="type != 'tw'">
+                        <tr><td>Ссылка</td><td><input type="text" name="record[{type}][url]" value="{url}" /></td></tr>
+                        <tr><td>Теги</td><td><input type="text" name="record[{type}][tags]" value="{tags}" /></td></tr>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <input type="hidden" name="record[{type}][url]" value="" />
+                        <input type="hidden" name="record[{type}][tags]" value="" />
+                    </xsl:otherwise>
+                </xsl:choose>
                 <tr><td>Картинка</td><td><input type="file" name="record[{type}][image]" />
                     <xsl:if test="image != 0"><br /><input type="checkbox" name="{type}_image_delete" value="1" /> Удалить<br /><a href="{image}" target="_blank"><img src="{image_th}" /></a></xsl:if>
                 </td></tr>
@@ -91,6 +114,7 @@
             <xsl:otherwise>
 
                 <a href="{fb_login_url}">Update facebook access token</a><br /><br />
+                <a href="/admin/?op=posts&amp;act=tokens&amp;type=tw">Update twitter configuration</a><br /><br />
                 <!--<a href="{fb_login_url}">Get OK.ru access token</a>-->
 
             </xsl:otherwise>

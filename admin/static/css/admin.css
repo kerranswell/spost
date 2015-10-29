@@ -145,3 +145,23 @@ ul.path li {
 tr.blank td {
     background-color: #aaa;
 }
+
+div.hint
+{
+    font-size: 14px;
+    color: #777;
+    padding: 5px;
+}
+
+#tw_count {
+    font-size: 14px;
+    color: blue;
+}
+
+#tw_count.green {
+    color: green;
+}
+#tw_count.red {
+    color: red;
+    font-weight: bold;
+}

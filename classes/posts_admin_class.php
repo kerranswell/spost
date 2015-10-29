@@ -42,7 +42,7 @@ class posts_admin extends record {
         $posts = array();
         if ($req_date > 0)
         {
-            $posts = $this->GetPosts($req_date, 'image, type');
+            $posts = $this->GetPosts($req_date, 'image, type, published');
         }
 
         $save = $_POST['record'];
@@ -79,15 +79,22 @@ class posts_admin extends record {
             foreach ($soc_types as $st => $t)
             {
                 if (!isset($save[$st]['image'])) $save[$st]['image'] = $posts[$st]['image'];
+                $save[$st]['published'] = $posts[$st]['published'];
+                $save[$st]['type'] = $st;
+                $save[$st]['date'] = $req_date;
             }
 
             $date = time();
 
             ob_start();
-            $this->dsp->socials->prepareAndPublish($save);
+            $ps = array();
+            foreach ($save as $s) if ($s['active']) $ps[] = $s;
+            $this->dsp->socials->prepareAndPublish($ps);
             if (count($this->dsp->socials->errors) > 0)
             {
-                print_r($this->dsp->socials->errors); exit;
+                echo '<pre>';
+                print_r($this->dsp->socials->errors);
+                echo '</pre>'; exit;
             }
         }
 
@@ -96,11 +103,11 @@ class posts_admin extends record {
             if ($req_date > 0)
             {
                 if (!isset($save[$st]['image'])) $save[$st]['image'] = $posts[$st]['image'];
-                $sql = "update `posts` set `text` = ?, `image` = ?, `active` = ?, `date` = ?, `url` = ?, `blank` = ? where `date` = ? and `type` = ?";
-                $this->dsp->db->Execute($sql, $save[$st]['text'], $save[$st]['image'], !empty($save[$st]['active']) ? 1 : 0, $date, $save[$st]['url'], $blank, $req_date, $st);
+                $sql = "update `posts` set `text` = ?, `image` = ?, `active` = ?, `date` = ?, `url` = ?, `blank` = ?, `tags` = ? where `date` = ? and `type` = ?";
+                $this->dsp->db->Execute($sql, $save[$st]['text'], $save[$st]['image'], !empty($save[$st]['active']) ? 1 : 0, $date, $save[$st]['url'], $blank, $save[$st]['tags'], $req_date, $st);
             } else {
-                $sql = "insert into `posts` (`type`, `text`, `image`, `active`, `date`, `url`, `blank`) values (?, ?, ?, ?, ?, ?, ?)".'';
-                $this->dsp->db->Execute($sql, $st, $save[$st]['text'], $save[$st]['image'], !empty($save[$st]['active']) ? 1 : 0, $date, $save[$st]['url'], $blank);
+                $sql = "insert into `posts` (`type`, `text`, `image`, `active`, `date`, `url`, `blank`, `tags`) values (?, ?, ?, ?, ?, ?, ?, ?)".'';
+                $this->dsp->db->Execute($sql, $st, $save[$st]['text'], $save[$st]['image'], !empty($save[$st]['active']) ? 1 : 0, $date, $save[$st]['url'], $blank, $save[$st]['tags']);
             }
         }
 

@@ -39,6 +39,7 @@ foreach ($posts as $date => $post)
     $content['date'] = $date;
     $content['blank'] = $blank;
     $content['date_title'] = date('d.m.Y H:i', $date);
+    if (!isset($content['image'])) $content['image'] = 0;
     if ($content['image'] > 0)
     {
         $content['image_th'] = $dsp->i->default_path.$dsp->i->resize($content['image'], TH_IMAGE_EDIT_ADMIN);

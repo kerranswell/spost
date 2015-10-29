@@ -137,7 +137,7 @@
         function Select() {
             $args = func_get_args();
             $dbr = call_user_func_array(array($this, "_exec"), $args);
-            
+
             if ($this->NoError()) {
                 $result = array();
                 
